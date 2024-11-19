@@ -15,3 +15,21 @@
     ansible.builtin.copy:
       src: /root/index.html
       dest: /var/www/html/
+
+  - name: changing the port number
+    ansible.builtin.template:
+      src: /root/httpd.conf.j2
+      dest: /etc/httpd/conf/httpd.conf
+    vars:
+      port: 40
+
+  - name: Restart Apache
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+
+  - name: Enable the httpd service
+    ansible.builtin.systemd:
+      name: httpd
+      enabled: yes
+
