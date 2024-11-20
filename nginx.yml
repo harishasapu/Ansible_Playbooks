@@ -1,0 +1,32 @@
+---
+- hosts: dev
+  tasks:
+  - name: Install Nginx
+    ansible.builtin.dnf:
+      name: nginx
+      state: present
+
+  - name: Start The Nginx
+    ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: yes
+
+  - name: copy the index.html file into webserver
+    ansible.builtin.copy:
+      src: /root/nginx/index.html
+      dest: /usr/share/nginx/html/index.html
+
+  - name: Changing the port number
+    ansible.builtin.template:
+      src: /root/nginx/nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+    vars:
+      port: 60
+    notify:
+      - Restart nginx
+  handlers:  
+  - name: Restart nginx
+    ansible.builtin.service:
+      name: nginx
+      state: restarted
