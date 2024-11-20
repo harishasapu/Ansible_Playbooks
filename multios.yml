@@ -1,0 +1,15 @@
+---
+- hosts: dev
+  tasks:
+  - name: Install Git If it is not there
+    ansible.builtin.dnf:
+      name: git
+      state: present
+    when: ansible_os_family == "RedHat"
+
+  - name: Install Git if it is not there
+    ansible.builtin.apt:
+      name: git
+      state: presnt
+    when: ansible_os_family == "Debian"
+    
