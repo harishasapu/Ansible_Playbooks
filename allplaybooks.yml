@@ -1,0 +1,100 @@
+---
+- hosts: dev
+  become: yes
+  tasks:
+  - name: Create A Folder In Opt
+    ansible.builtin.file:
+      path: /opt/Harish
+      state: directory
+  - name: Chanding Ownership
+    ansible.builtin.command: chown -R ansible:ansible /opt/Harish  
+
+
+---
+- hosts: dev
+  become: yes
+  vars:
+    package_name: httpd
+  tasks:
+    - name: Installing apache package
+      ansible.builtin.apt:
+        name: "{{ package_name }}"
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+## ansible-playbook folder.yml --extra-vars package_name=apache2
+
+
+## Multiple appps Installing In a Single Task
+---
+- hosts: dev
+  become: yes
+  tasks:
+  - name: Installing Multiple apps using Single Task
+    ansible.builtin.apt:
+      name:
+        - git
+        - tree
+        - apache2
+      state: present
+    when: ansible_os_family == "Debian"
+
+
+## Register and Debug Module   
+---
+  - hosts: dev
+    become: yes
+    tasks:
+    - name: check the load average
+      ansible.builtin.shell: uptime
+      register: load_output
+    - name: Display the full load_average_output variable
+      ansible.builtin.debug:
+        var: load_output
+      when: ansible_os_family == "Debian"
+
+      
+## Ansible Tags
+---
+- hosts: dev
+  become: yes
+  tasks: 
+  - name: Create A File In OPT Folder
+    ansible.builtin.file:
+      path: /opt/Harish.txt
+      state: touch
+    tags: file
+  - name: Create A Directory IN OPT Folder
+    ansible.builtin.file:
+      path: /opt/Harish
+      state: directory
+    tags: dire
+  - name: Installation Of Git 
+    ansible.builtin.dnf:
+      name: git
+      state: present
+    tags: git
+    when: ansible_os_family == "RedHat" 
+  - name: Installation Of Tree
+    ansible.builtin.dnf:
+      name: tree
+      state: present
+    tags: tree
+    when: ansible_os_family == "RedHat"
+##  ansible-playbook tags.yml --tags tree
+##  ansible-playbook tags.yml --skip-tags git
+
+
+### ansible-vault encrypt tags.yml
+### ansible-playbook tags.yml --ask-vault-pass
+### ansible-vault edit tags.yml
+### ansible-vault create example.yml (Direct Encrypt)
+### ansible-vault edit tags.yml (To Change The Password)
+### ansible-vault encrypt_string ASDFGHJKLZXCVBNM
+### ansible-vault decrypt tags.yml
+
+
+### (Limiting)
+###  ansible-playbook --limit 172.31.0.81 tags.yml (Give The IP Adress Where You Want yo Run)
+###  ansible-playbook --limit dev  tags.yml (Give The Host Name Group Also)
+
